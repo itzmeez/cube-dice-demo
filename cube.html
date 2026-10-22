@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Dice</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow: hidden;
+        }
+
+        .controls {
+            margin-bottom: 25px;
+        }
+
+        .dice-container {
+            display: flex;
+            gap: 50px;
+            perspective: 1200px;
+            margin-bottom: 30px;
+            min-height: 200px;
+            align-items: center;
+        }
+
+        .cube {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.15, 1.1, 0.35, 1.15);
+        }
+
+        .face {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: white;
+            border: 4px solid #ccc;
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.15);
+            
+            /* Grid layout for dice dots */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        /* Standard 3D Face Positions */
+        .front  { transform: rotateY(0deg) translateZ(75px); }
+        .back   { transform: rotateY(180deg) translateZ(75px); }
+        .right  { transform: rotateY(90deg) translateZ(75px); }
+        .left   { transform: rotateY(-90deg) translateZ(75px); }
+        .top    { transform: rotateX(90deg) translateZ(75px); }
+        .bottom { transform: rotateX(-90deg) translateZ(75px); }
+
+        /* Dot styling */
+        .dot {
+            width: 22px;
+            height: 22px;
+            background-color: #222;
+            border-radius: 50%;
+            align-self: center;
+            justify-self: center;
+        }
+
+        /* Specific grid positions for dice faces (1 through 6) */
+        .face-1 .dot-1 { grid-column: 2; grid-row: 2; }
+
+        .face-2 .dot-1 { grid-column: 1; grid-row: 1; }
+        .face-2 .dot-2 { grid-column: 3; grid-row: 3; }
+
+        .face-3 .dot-1 { grid-column: 1; grid-row: 1; }
+        .face-3 .dot-2 { grid-column: 2; grid-row: 2; }
+        .face-3 .dot-3 { grid-column: 3; grid-row: 3; }
+
+        .face-4 .dot-1 { grid-column: 1; grid-row: 1; }
+        .face-4 .dot-2 { grid-column: 3; grid-row: 1; }
+        .face-4 .dot-3 { grid-column: 1; grid-row: 3; }
+        .face-4 .dot-4 { grid-column: 3; grid-row: 3; }
+
+        .face-5 .dot-1 { grid-column: 1; grid-row: 1; }
+        .face-5 .dot-2 { grid-column: 3; grid-row: 1; }
+        .face-5 .dot-3 { grid-column: 2; grid-row: 2; }
+        .face-5 .dot-4 { grid-column: 1; grid-row: 3; }
+        .face-5 .dot-5 { grid-column: 3; grid-row: 3; }
+
+        .face-6 .dot-1 { grid-column: 1; grid-row: 1; }
+        .face-6 .dot-2 { grid-column: 3; grid-row: 1; }
+        .face-6 .dot-3 { grid-column: 1; grid-row: 2; }
+        .face-6 .dot-4 { grid-column: 3; grid-row: 2; }
+        .face-6 .dot-5 { grid-column: 1; grid-row: 3; }
+        .face-6 .dot-6 { grid-column: 3; grid-row: 3; }
+
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #ff7676;
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        label {
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <label>
+            <input type="checkbox" id="twoDiceToggle" onchange="toggleDiceMode()"> Roll 2 Dice
+        </label>
+    </div>
+
+    <div class="dice-container" id="diceContainer">
+        <!-- Die 1 (Always visible) -->
+        <div class="cube" id="cube1">
+            <div class="face front face-1"><div class="dot dot-1"></div></div>
+            <div class="face back face-6"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div><div class="dot dot-5"></div><div class="dot dot-6"></div></div>
+            <div class="face right face-3"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div></div>
+            <div class="face left face-4"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div></div>
+            <div class="face top face-2"><div class="dot dot-1"></div><div class="dot dot-2"></div></div>
+            <div class="face bottom face-5"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div><div class="dot dot-5"></div></div>
+        </div>
+        <!-- Die 2 (Hidden by default) -->
+        <div class="cube" id="cube2" style="display: none;">
+            <div class="face front face-1"><div class="dot dot-1"></div></div>
+            <div class="face back face-6"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div><div class="dot dot-5"></div><div class="dot dot-6"></div></div>
+            <div class="face right face-3"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div></div>
+            <div class="face left face-4"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div></div>
+            <div class="face top face-2"><div class="dot dot-1"></div><div class="dot dot-2"></div></div>
+            <div class="face bottom face-5"><div class="dot dot-1"></div><div class="dot dot-2"></div><div class="dot dot-3"></div><div class="dot dot-4"></div><div class="dot dot-5"></div></div>
+        </div>
+    </div>
+
+    <button id="rollBtn" onclick="rollDice()">Roll Dice</button>
+
+    <script>
+        function toggleDiceMode() {
+            const useTwoDice = document.getElementById('twoDiceToggle').checked;
+            document.getElementById('cube2').style.display = useTwoDice ? 'block' : 'none';
+        }
+
+        function getFaceRotation(number) {
+            let x = 0, y = 0;
+            switch (number) {
+                case 1: x = 0;   y = 0;   break;
+                case 2: x = -90; y = 0;   break;
+                case 3: x = 0;   y = -90; break;
+                case 4: x = 0;   y = 90;  break;
+                case 5: x = 90;  y = 0;   break;
+                case 6: x = 0;   y = 180; break;
+            }
+            return { x, y };
+        }
+
+        let isRolling = false;
+
+        function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+
+            const rollBtn = document.getElementById('rollBtn');
+            const useTwoDice = document.getElementById('twoDiceToggle').checked;
+            const cube1 = document.getElementById('cube1');
+            const cube2 = document.getElementById('cube2');
+
+            rollBtn.disabled = true;
+
+            const result1 = Math.floor(Math.random() * 6) + 1;
+            const targetRot1 = getFaceRotation(result1);
+            const extraSpins1X = (Math.floor(Math.random() * 3) + 4) * 360;
+            const extraSpins1Y = (Math.floor(Math.random() * 3) + 4) * 360;
+
+            cube1.style.transform = `rotateX(${targetRot1.x + extraSpins1X}deg) rotateY(${targetRot1.y + extraSpins1Y}deg)`;
+
+            if (useTwoDice) {
+                const result2 = Math.floor(Math.random() * 6) + 1;
+                const targetRot2 = getFaceRotation(result2);
+                const extraSpins2X = (Math.floor(Math.random() * 3) + 4) * 360;
+                const extraSpins2Y = (Math.floor(Math.random() * 3) + 4) * 360;
+
+                cube2.style.transform = `rotateX(${targetRot2.x + extraSpins2X}deg) rotateY(${targetRot2.y + extraSpins2Y}deg)`;
+            }
+
+            setTimeout(() => {
+                isRolling = false;
+                rollBtn.disabled = false;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
